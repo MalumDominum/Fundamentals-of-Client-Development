@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="styles.css" rel="stylesheet">
+    <title>Notes App</title>
+</head>
+<body>
+<div class="container">
+    <div class="notes-container">
+        <ul id="notes-list" class="notes-list">
+        </ul>
+		<div>
+		<input id="note-title" type="text" />
+        <button id="add-button" class="add-btn">Add</button>
+		</div>
+    </div>
+    <div class="note-view">
+        <input id="view-title" disabled="true" value="Select Note" type="text"/>
+		<p id="view-date"></p>
+		<textarea id="view-text" disabled="true" rows="5" cols="5"></textarea>
+		<button id="edit-button" disabled="true">Edit</button>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
