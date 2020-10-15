@@ -1,3 +1,8 @@
+const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' };
+const viewTitle = document.getElementById("view-title");
+const viewDate = document.getElementById("view-date"); 
+const viewText = document.getElementById("view-text");
+const editButton = document.getElementById("edit-button");
 function addNote(name, date, id) {
 	let liElement = document.createElement("li")
 	liElement.id = "index_" + id;
@@ -5,19 +10,28 @@ function addNote(name, date, id) {
 	liElement.innerHTML = 
 			'<div class="note-title">' + name + '</div>' +
             '<div class="note-text">' +
-                '<span class="date">' + date.toString() + '</span>' +
+                '<span class="date">' + date.toLocaleDateString('en-EN', dateOptions) + '</span>' +
             '</div>' +
-            '<button class="remove-button" data-index="' + id + '">Remove</button>';
+            '<button class="remove-button" data-index="' + id + '">⨉</button>';
 	addRouteListener(liElement);
 	addRemoveListener(liElement.getElementsByClassName('remove-button')[0])
 	notesList.appendChild(liElement);
+	noteTitle.value = '';
 }
 
-function updateNotesList(){
+function updateNotesList() {
 	notesList.innerHTML = "";
 	for (let note in storage)  {
 		addNote(storage[note].name, new Date(storage[note].date), storage[note].id)
 	}
+}
+
+function setCurrentNote() {
+	var longDateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' };
+	viewTitle.value = history.state.name;
+	viewDate.innerHTML = new Date(history.state.date).toLocaleDateString('en-EN', longDateOptions);
+	viewText.value = history.state.content;
+	editButton.removeAttribute("disabled");
 }
 
 function addRemoveListener(element) {
@@ -27,10 +41,10 @@ function addRemoveListener(element) {
 		document.getElementById("index_" + this.dataset.index).remove();
 		event.stopPropagation();
 		if (this.dataset.index == history.state.id) {
-			document.getElementById("view-title").value = "Select Note";
-			document.getElementById("view-date").innerHTML = "";
-			document.getElementById("view-text").value = "";
-			document.getElementById("edit-button").setAttribute("disabled", true);
+			viewTitle.value = "Select Note"; 
+			viewDate.innerHTML = "";
+			viewText.value = "";
+			editButton.setAttribute("disabled", true);
 			history.pushState(null, null, "#");
 		}
 	});
@@ -40,13 +54,10 @@ function addRouteListener(element) {
 	element.addEventListener('click', function(event){
 		let currentNote = storage[this.id.substring(6)];
 		history.pushState(currentNote, null, "#" + currentNote.name + "&id=" + currentNote.id);
-		document.getElementById("view-title").value = history.state.name;
-		document.getElementById("view-date").innerHTML = history.state.date.toString();
-		document.getElementById("view-text").value = history.state.content;
-		document.getElementById("edit-button").removeAttribute("disabled");
-		document.getElementById("edit-button").innerHTML = "Edit";
-		document.getElementById("view-title").setAttribute("disabled", true);
-		document.getElementById("view-text").setAttribute("disabled", true);
+		setCurrentNote()
+		editButton.innerHTML = "Edit";
+		viewTitle.setAttribute("disabled", true);
+		viewText.setAttribute("disabled", true);
 	});
 }
 
@@ -63,10 +74,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			if(storage[id]) {
 				let currentNote = storage[id];
 				history.pushState(currentNote, null, "#" + currentNote.name + "&id=" + currentNote.id);
-				document.getElementById("view-title").value = history.state.name;
-				document.getElementById("view-date").innerHTML = history.state.date.toString();
-				document.getElementById("view-text").value = history.state.content;
-				document.getElementById("edit-button").removeAttribute("disabled");
+				setCurrentNote()
 			} else {
 				history.pushState(null, null, "#");
 			}
@@ -76,10 +84,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 				if (decodeURI(window.location.href.split("#")[1]) == storage[note].name)  {
 					let currentNote = storage[note];
 					history.pushState(currentNote, null, "#" + currentNote.name + "&id=" + currentNote.id);
-					document.getElementById("view-title").value = history.state.name;
-					document.getElementById("view-date").innerHTML = history.state.date.toString();
-					document.getElementById("view-text").value = history.state.content;
-					document.getElementById("edit-button").removeAttribute("disabled");
+					setCurrentNote()
 					found = true;
 				}
 			}
@@ -88,24 +93,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			}
 		}
 	}
-	document.getElementById("edit-button").addEventListener('click', function(event){
+	editButton.addEventListener('click', function(event){
 		if (this.innerHTML == "Edit") {
-			document.getElementById("view-title").removeAttribute("disabled");
-			document.getElementById("view-text").removeAttribute("disabled");
+			viewTitle.removeAttribute("disabled");
+			viewText.removeAttribute("disabled");
 			this.innerHTML = "Save";
 		} else {
 			this.innerHTML = "Edit";
-			document.getElementById("view-title").setAttribute("disabled", true);
-			document.getElementById("view-text").setAttribute("disabled", true);
-			storage[history.state.id].name = document.getElementById("view-title").value;
-			storage[history.state.id].content = document.getElementById("view-text").value;
+			viewTitle.setAttribute("disabled", true);
+			viewText.setAttribute("disabled", true);
+			storage[history.state.id].name = viewTitle.value;
+			storage[history.state.id].content = viewText.value;
+			//storage[history.state.id].date = new Date();
 			localStorage.setItem("notes-list", JSON.stringify(storage));
 			let currentNote = storage[history.state.id];
 			history.pushState(currentNote, null, "#" + currentNote.name + "&id=" + currentNote.id);
-			document.getElementById("view-title").value = history.state.name;
-			document.getElementById("view-date").innerHTML = history.state.date.toString();
-			document.getElementById("view-text").value = history.state.content;
-			document.getElementById("edit-button").removeAttribute("disabled");
+			setCurrentNote()
 			updateNotesList();
 		}
 	});
