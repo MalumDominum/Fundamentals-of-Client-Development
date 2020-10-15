@@ -64,6 +64,8 @@ body {
 .note-view input {
     width: calc(100% - 10px);
     background-color: #FFA737;
+    font-size: x-large;
+
 }
 .note-view input:disabled, .note-view textarea:disabled {
     background-color: #694919;
